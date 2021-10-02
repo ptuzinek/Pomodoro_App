@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_app/presentation/widgets/pomodoro_timer.dart';
@@ -13,9 +15,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int minutes = 25;
   int seconds = 0;
+  int listViewItemPosition = 24;
+  ScrollPhysics physics = FixedExtentScrollPhysics();
+  late Timer timer;
   final FixedExtentScrollController controller = FixedExtentScrollController(
     initialItem: 24,
   );
+
+  @override
+  void dispose() {
+    controller.dispose();
+    timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,23 +43,30 @@ class _HomeScreenState extends State<HomeScreen> {
             Flexible(
               child: Text(
                 displayTime(),
-                style: TextStyle(fontSize: 75),
+                style: TextStyle(
+                  fontFamily: 'RobotoMono',
+                  fontSize: 75,
+                ),
               ),
             ),
             Expanded(
               child: PomodoroTimer(
                 controller: controller,
-                updateTimer: (min) {
+                physics: physics,
+                updateTimer: (listPositionReal) {
+                  listViewItemPosition = listPositionReal;
                   setState(() {
-                    minutes = (min + 1) % 60;
-                    seconds = 0;
+                    minutes = (listPositionReal + 1) % 60;
                   });
                 },
               ),
             ),
             IconButton(
               icon: Icon(Icons.play_arrow),
-              onPressed: () {},
+              onPressed: () {
+                turnTheClock();
+                startCountdown();
+              },
             ),
           ],
         ),
@@ -69,5 +88,31 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return '';
     }
+  }
+
+  void turnTheClock() {
+    physics = AlwaysScrollableScrollPhysics();
+    controller.animateToItem((listViewItemPosition - minutes),
+        duration: Duration(
+          minutes: minutes,
+        ),
+        curve: Curves.linear);
+  }
+
+  void startCountdown() {
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (seconds == 0 && minutes == 0) {
+        timer.cancel();
+        print('Cancel in startCountdown');
+      } else if (seconds == 0 && minutes != 0) {
+        minutes--;
+        seconds--;
+      } else {
+        seconds--;
+      }
+      setState(() {
+        seconds = (seconds) % 60;
+      });
+    });
   }
 }

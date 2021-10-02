@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Flexible(
               child: Text(
-                '25:00',
+                displayTime(),
                 style: TextStyle(fontSize: 75),
               ),
             ),
@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: controller,
                 updateTimer: (min) {
                   setState(() {
-                    minutes = min;
+                    minutes = (min + 1) % 60;
                     seconds = 0;
                   });
                 },
@@ -53,5 +53,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  String displayTime() {
+    if (seconds == 60) {
+      return '$minutes:00';
+    } else if (minutes > 9 && seconds > 9) {
+      return '$minutes:$seconds';
+    } else if (minutes < 10 && seconds < 10) {
+      return '0$minutes:0$seconds';
+    } else if (minutes < 10 && seconds > 9) {
+      return '0$minutes:$seconds';
+    } else if (minutes > 9 && seconds < 10) {
+      return '$minutes:0$seconds';
+    } else {
+      return '';
+    }
   }
 }

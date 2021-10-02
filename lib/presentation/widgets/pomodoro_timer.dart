@@ -17,6 +17,10 @@ class PomodoroTimer extends StatelessWidget {
         squeeze: 2,
         diameterRatio: 1.3,
         physics: FixedExtentScrollPhysics(),
+        onSelectedItemChanged: (value) {
+          print(value);
+          updateTimer(value);
+        },
         childDelegate: ListWheelChildBuilderDelegate(
           builder: (context, index) {
             index = (index + 1) % 60;

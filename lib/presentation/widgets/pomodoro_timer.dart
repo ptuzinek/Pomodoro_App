@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class PomodoroTimer extends StatelessWidget {
   const PomodoroTimer({
     Key? key,
-    required this.updateTimer,
+    required this.onSelectedItemChanged,
     required this.controller,
     required this.physics,
     required this.onListWheelTap,
     required this.onNotification,
   }) : super(key: key);
-  final Function(int min) updateTimer;
+  final Function(int min) onSelectedItemChanged;
   final FixedExtentScrollController controller;
   final ScrollPhysics physics;
   final Function onListWheelTap;
@@ -29,9 +29,7 @@ class PomodoroTimer extends StatelessWidget {
             squeeze: 2,
             diameterRatio: 1.3,
             physics: physics, //FixedExtentScrollPhysics(),
-            onSelectedItemChanged: (value) {
-              updateTimer(value);
-            },
+            onSelectedItemChanged: onSelectedItemChanged,
             childDelegate: ListWheelChildBuilderDelegate(
               builder: (context, index) {
                 index = (index + 1) % 60;

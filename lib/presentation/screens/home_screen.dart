@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:pomodoro_app/presentation/widgets/focus_session_table.dart';
 import 'package:pomodoro_app/presentation/widgets/pomodoro_timer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,9 +14,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int minutes = 25;
   int seconds = 0;
   int listViewItemPosition = 24;
+  int focusSessionsCompleted = 0;
   ScrollPhysics physics = FixedExtentScrollPhysics();
   Timer? timer;
   bool isPaused = true;
+  bool isFocus = true;
+  bool isLongBreak = false;
+  bool isListIndexChange = true;
   final FixedExtentScrollController controller = FixedExtentScrollController(
     initialItem: 24,
   );
@@ -31,13 +36,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: isFocus ? Colors.white : Colors.lightGreen,
       body: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
               height: 100,
+            ),
+            Text(
+              isFocus ? 'Focus' : 'Break',
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+            SizedBox(
+              height: 10,
             ),
             Flexible(
               child: Text(
@@ -53,12 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: controller,
                 physics: physics,
                 onListWheelTap: onListWheelTap,
-                updateTimer: updateTimer,
+                onSelectedItemChanged: onSelectedItemChanged,
                 onNotification: onNotification,
               ),
             ),
             IconButton(
-              icon: isPaused ? Icon(Icons.play_arrow) : Icon(Icons.pause),
+              icon: isPaused
+                  ? Icon(Icons.play_arrow, size: 40)
+                  : Icon(Icons.pause, size: 40),
               onPressed: () {
                 if (isPaused) {
                   startCountdown();
@@ -67,6 +83,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   pauseCountdownAndRotation();
                 }
               },
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            FocusSessionTable(
+              focusSessionsCompleted: focusSessionsCompleted.toString(),
             ),
           ],
         ),
@@ -84,8 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return true;
   }
 
-  updateTimer(listPositionReal) {
+  onSelectedItemChanged(listPositionReal) {
     listViewItemPosition = listPositionReal;
+    // Flag that the current List index changed
+    isListIndexChange = true;
     setState(() {
       minutes = (listPositionReal + 1) % 60;
     });
@@ -113,9 +137,23 @@ class _HomeScreenState extends State<HomeScreen> {
     physics = AlwaysScrollableScrollPhysics();
     final int durationInSeconds = minutes * 60 + seconds;
 
-    controller.animateToItem((listViewItemPosition - minutes),
+    // Calculate the end position of the clock, taking into account that
+    // the calculation is using the current index and the minutes count,
+    // but when the clock starts it substracts 1 minute, so when user pause and
+    // resume the calculation that is made is one index short of a goal.
+    // Also take into account that the listViewItemPosition changes when seconds
+    // reach 30.
+    int endPosition = -1;
+    // here we take into account that the minute should be rounded up.
+    if (isListIndexChange) {
+      endPosition = listViewItemPosition - minutes;
+    } else {
+      endPosition = listViewItemPosition - minutes - 1;
+    }
+
+    controller.animateToItem((endPosition),
         duration: Duration(
-          seconds: durationInSeconds,
+          seconds: durationInSeconds > 0 ? durationInSeconds : 1,
         ),
         curve: Curves.linear);
   }
@@ -127,10 +165,33 @@ class _HomeScreenState extends State<HomeScreen> {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (seconds == 0 && minutes == 0) {
         timer.cancel();
+        setState(() {
+          if (isFocus) {
+            focusSessionsCompleted++;
+          }
+          // Change the session, rotate the clock to starting position,
+          // reset the clock.
+
+          isFocus = !isFocus;
+          if (isFocus) {
+            controller.jumpToItem(24);
+            minutes = 25;
+          } else if (!isFocus && (focusSessionsCompleted % 4) == 0) {
+            controller.jumpToItem(24);
+            minutes = 25;
+          } else {
+            controller.jumpToItem(4);
+            minutes = 5;
+          }
+
+          startCountdown();
+          turnTheClock();
+        });
         print('Cancel in startCountdown');
       } else if (seconds == 0 && minutes != 0) {
         minutes--;
         seconds--;
+        isListIndexChange = false;
       } else {
         seconds--;
       }

@@ -1,9 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_app/presentation/widgets/pomodoro_timer.dart';
-import 'package:pomodoro_app/state_managment/cubit/timer_cubit.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int seconds = 0;
   int listViewItemPosition = 24;
   ScrollPhysics physics = FixedExtentScrollPhysics();
-  late Timer timer;
+  Timer? timer;
   bool isPaused = true;
   final FixedExtentScrollController controller = FixedExtentScrollController(
     initialItem: 24,
@@ -26,7 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     controller.dispose();
-    timer.cancel();
+    timer?.cancel();
+    timer = null;
     super.dispose();
   }
 
@@ -54,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: PomodoroTimer(
                 controller: controller,
                 physics: physics,
+                onListWheelTap: onListWheelTap,
                 updateTimer: (listPositionReal) {
                   listViewItemPosition = listPositionReal;
                   setState(() {
@@ -69,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   startCountdown();
                   turnTheClock();
                 } else {
-                  pauseTheClock();
+                  pauseCountdownAndRotation();
                 }
               },
             ),
@@ -128,8 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void pauseTheClock() {
-    timer.cancel();
+  void pauseCountdownAndRotation() {
+    timer?.cancel();
     print('PAUSE');
     // Interrupt the animation by creating new one to the current position.
     controller.animateTo(controller.offset,
@@ -137,5 +136,17 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isPaused = true;
     });
+  }
+
+  void onListWheelTap() {
+    if (isPaused) {
+      startCountdown();
+      turnTheClock();
+    } else {
+      timer?.cancel();
+      setState(() {
+        isPaused = true;
+      });
+    }
   }
 }

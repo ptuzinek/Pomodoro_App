@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int listViewItemPosition = 24;
   ScrollPhysics physics = FixedExtentScrollPhysics();
   late Timer timer;
+  bool isPaused = true;
   final FixedExtentScrollController controller = FixedExtentScrollController(
     initialItem: 24,
   );
@@ -49,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Expanded(
+            Flexible(
               child: PomodoroTimer(
                 controller: controller,
                 physics: physics,
@@ -62,10 +63,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.play_arrow),
+              icon: isPaused ? Icon(Icons.play_arrow) : Icon(Icons.pause),
               onPressed: () {
-                turnTheClock();
-                startCountdown();
+                if (isPaused) {
+                  startCountdown();
+                  turnTheClock();
+                } else {
+                  pauseTheClock();
+                }
               },
             ),
           ],
@@ -91,15 +96,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void turnTheClock() {
+    // Change Physics to stop the clock at the exact current position and not
+    // the closest element.
     physics = AlwaysScrollableScrollPhysics();
+    final int durationInSeconds = minutes * 60 + seconds;
+
     controller.animateToItem((listViewItemPosition - minutes),
         duration: Duration(
-          minutes: minutes,
+          seconds: durationInSeconds,
         ),
         curve: Curves.linear);
   }
 
   void startCountdown() {
+    setState(() {
+      isPaused = false;
+    });
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (seconds == 0 && minutes == 0) {
         timer.cancel();
@@ -113,6 +125,17 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         seconds = (seconds) % 60;
       });
+    });
+  }
+
+  void pauseTheClock() {
+    timer.cancel();
+    print('PAUSE');
+    // Interrupt the animation by creating new one to the current position.
+    controller.animateTo(controller.offset,
+        duration: Duration(microseconds: 1), curve: Curves.linear);
+    setState(() {
+      isPaused = true;
     });
   }
 }

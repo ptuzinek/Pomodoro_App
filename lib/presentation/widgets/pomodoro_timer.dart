@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class PomodoroTimer extends StatelessWidget {
-  const PomodoroTimer(
-      {Key? key,
-      required this.updateTimer,
-      required this.controller,
-      required this.physics})
-      : super(key: key);
+  const PomodoroTimer({
+    Key? key,
+    required this.updateTimer,
+    required this.controller,
+    required this.physics,
+  }) : super(key: key);
   final Function(int min) updateTimer;
   final FixedExtentScrollController controller;
   final ScrollPhysics physics;

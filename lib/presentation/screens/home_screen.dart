@@ -53,12 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: controller,
                 physics: physics,
                 onListWheelTap: onListWheelTap,
-                updateTimer: (listPositionReal) {
-                  listViewItemPosition = listPositionReal;
-                  setState(() {
-                    minutes = (listPositionReal + 1) % 60;
-                  });
-                },
+                updateTimer: updateTimer,
+                onNotification: onNotification,
               ),
             ),
             IconButton(
@@ -76,6 +72,23 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  bool onNotification(userScrollNotification) {
+    physics = FixedExtentScrollPhysics();
+    timer?.cancel();
+    setState(() {
+      seconds = 0;
+      isPaused = true;
+    });
+    return true;
+  }
+
+  updateTimer(listPositionReal) {
+    listViewItemPosition = listPositionReal;
+    setState(() {
+      minutes = (listPositionReal + 1) % 60;
+    });
   }
 
   String displayTime() {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pomodoro_app/presentation/widgets/focus_session_table.dart';
 import 'package:pomodoro_app/presentation/widgets/pomodoro_timer.dart';
+import 'package:pomodoro_app/presentation/widgets/progress_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -89,6 +90,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             FocusSessionTable(
               focusSessionsCompleted: focusSessionsCompleted.toString(),
+            ),
+            SizedBox(
+              height: 200,
+              child: ProgressBar(
+                progress: focusSessionsCompleted,
+              ),
             ),
           ],
         ),

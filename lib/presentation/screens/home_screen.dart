@@ -11,8 +11,7 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   int minutes = 25;
   int seconds = 0;
   int listViewItemPosition = 24;
@@ -23,152 +22,131 @@ class _HomeScreenState extends State<HomeScreen>
   bool isFocus = true;
   bool isLongBreak = false;
   bool isListIndexChange = true;
-  AnimationController? _animationController;
-  Animation? _colorAnimation;
+  Color backgroundColor = Colors.white;
   final FixedExtentScrollController controller = FixedExtentScrollController(
     initialItem: 24,
   );
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: Duration(seconds: 1),
-      vsync: this,
-    );
-
-    _colorAnimation = ColorTween(begin: Colors.white, end: Colors.lightGreen)
-        .animate(_animationController!);
-
-    _colorAnimation!.addListener(() {
-      print(_animationController!.value);
-      print(_colorAnimation!.value);
-    });
-  }
 
   @override
   void dispose() {
     controller.dispose();
     timer?.cancel();
     timer = null;
-    _animationController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animationController!,
-      builder: (BuildContext context, Widget? child) {
-        return Scaffold(
-          backgroundColor: _colorAnimation!
-              .value, //isFocus ? Colors.white : Colors.lightGreen,
-          body: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: 100,
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 400),
+      color: backgroundColor,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 100,
+              ),
+              Text(
+                isFocus ? 'Focus' : 'Break',
+                style: TextStyle(
+                  fontSize: 20,
                 ),
-                Text(
-                  isFocus ? 'Focus' : 'Break',
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Flexible(
+                child: Text(
+                  displayTime(),
                   style: TextStyle(
-                    fontSize: 20,
+                    fontFamily: 'RobotoMono',
+                    fontSize: 75,
                   ),
                 ),
-                SizedBox(
-                  height: 10,
+              ),
+              Flexible(
+                child: PomodoroTimer(
+                  controller: controller,
+                  physics: physics,
+                  onListWheelTap: onListWheelTap,
+                  onSelectedItemChanged: onSelectedItemChanged,
+                  onNotification: onNotification,
                 ),
-                Flexible(
-                  child: Text(
-                    displayTime(),
-                    style: TextStyle(
-                      fontFamily: 'RobotoMono',
-                      fontSize: 75,
+              ),
+              SizedBox(
+                width: 300,
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    IconButton(
+                      iconSize: 40,
+                      icon: isPaused
+                          ? Icon(
+                              Icons.play_arrow,
+                            )
+                          : Icon(
+                              Icons.pause,
+                            ),
+                      onPressed: () {
+                        if (isPaused) {
+                          startCountdown();
+                          turnTheClock();
+                        } else {
+                          pauseCountdownAndRotation();
+                        }
+                      },
                     ),
-                  ),
-                ),
-                Flexible(
-                  child: PomodoroTimer(
-                    controller: controller,
-                    physics: physics,
-                    onListWheelTap: onListWheelTap,
-                    onSelectedItemChanged: onSelectedItemChanged,
-                    onNotification: onNotification,
-                  ),
-                ),
-                SizedBox(
-                  width: 300,
-                  child: Stack(
-                    alignment: AlignmentDirectional.center,
-                    children: [
-                      IconButton(
-                        iconSize: 40,
-                        icon: isPaused
-                            ? Icon(
-                                Icons.play_arrow,
-                              )
-                            : Icon(
-                                Icons.pause,
-                              ),
-                        onPressed: () {
-                          if (isPaused) {
-                            startCountdown();
-                            turnTheClock();
-                          } else {
-                            pauseCountdownAndRotation();
-                          }
-                        },
-                      ),
-                      isFocus
-                          ? Container()
-                          : Positioned.fill(
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: IconButton(
-                                  iconSize: 35,
-                                  onPressed: () {
-                                    _animationController!.reverse();
-                                    timer?.cancel();
-                                    setState(() {
-                                      // Change the session, rotate the clock to starting position,
-                                      // reset the clock.
-                                      isFocus = !isFocus;
-                                      controller.jumpToItem(24);
-                                      minutes = 25;
-                                      seconds = 0;
+                    isFocus
+                        ? Container()
+                        : Positioned.fill(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: IconButton(
+                                iconSize: 35,
+                                onPressed: () {
+                                  timer?.cancel();
+                                  setState(() {
+                                    backgroundColor = Colors.white;
+                                    // Change the session, rotate the clock to starting position,
+                                    // reset the clock.
+                                    isFocus = !isFocus;
+                                    controller.jumpToItem(24);
+                                    minutes = 25;
+                                    seconds = 0;
 
-                                      startCountdown();
-                                      turnTheClock();
-                                    });
-                                    print('Skipped the Break');
-                                  },
-                                  icon: Icon(
-                                    Icons.skip_next,
-                                  ),
+                                    startCountdown();
+                                    turnTheClock();
+                                  });
+                                  print('Skipped the Break');
+                                },
+                                icon: Icon(
+                                  Icons.skip_next,
                                 ),
                               ),
                             ),
-                    ],
-                  ),
+                          ),
+                  ],
                 ),
-                SizedBox(
-                  height: 50,
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              FocusSessionTable(
+                focusSessionsCompleted: focusSessionsCompleted.toString(),
+              ),
+              SizedBox(
+                height: 200,
+                child: ProgressBar(
+                  progress: focusSessionsCompleted,
                 ),
-                FocusSessionTable(
-                  focusSessionsCompleted: focusSessionsCompleted.toString(),
-                ),
-                SizedBox(
-                  height: 200,
-                  child: ProgressBar(
-                    progress: focusSessionsCompleted,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -250,15 +228,15 @@ class _HomeScreenState extends State<HomeScreen>
 
           isFocus = !isFocus;
           if (isFocus) {
-            _animationController!.reverse();
+            backgroundColor = Colors.white;
             controller.jumpToItem(24);
             minutes = 25;
           } else if (!isFocus && (focusSessionsCompleted % 4) == 0) {
-            _animationController!.forward();
+            backgroundColor = Colors.lightGreen;
             controller.jumpToItem(24);
             minutes = 25;
           } else {
-            _animationController!.forward();
+            backgroundColor = Colors.lightGreen;
             controller.jumpToItem(4);
             minutes = 5;
           }

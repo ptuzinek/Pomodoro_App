@@ -72,18 +72,59 @@ class _HomeScreenState extends State<HomeScreen> {
                 onNotification: onNotification,
               ),
             ),
-            IconButton(
-              icon: isPaused
-                  ? Icon(Icons.play_arrow, size: 40)
-                  : Icon(Icons.pause, size: 40),
-              onPressed: () {
-                if (isPaused) {
-                  startCountdown();
-                  turnTheClock();
-                } else {
-                  pauseCountdownAndRotation();
-                }
-              },
+            SizedBox(
+              width: 300,
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  IconButton(
+                    iconSize: 40,
+                    icon: isPaused
+                        ? Icon(
+                            Icons.play_arrow,
+                          )
+                        : Icon(
+                            Icons.pause,
+                          ),
+                    onPressed: () {
+                      if (isPaused) {
+                        startCountdown();
+                        turnTheClock();
+                      } else {
+                        pauseCountdownAndRotation();
+                      }
+                    },
+                  ),
+                  isFocus
+                      ? Container()
+                      : Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              iconSize: 35,
+                              onPressed: () {
+                                timer?.cancel();
+                                setState(() {
+                                  // Change the session, rotate the clock to starting position,
+                                  // reset the clock.
+                                  isFocus = !isFocus;
+                                  controller.jumpToItem(24);
+                                  minutes = 25;
+                                  seconds = 0;
+
+                                  startCountdown();
+                                  turnTheClock();
+                                });
+                                print('Skipped the Break');
+                              },
+                              icon: Icon(
+                                Icons.skip_next,
+                              ),
+                            ),
+                          ),
+                        ),
+                ],
+              ),
             ),
             SizedBox(
               height: 50,

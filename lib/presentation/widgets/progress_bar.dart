@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pomodoro_app/state_managment/bloc/timer_bloc.dart';
 
 class ProgressBar extends StatelessWidget {
-  final int progress;
-  const ProgressBar({Key? key, required this.progress}) : super(key: key);
+  const ProgressBar();
 
   @override
   Widget build(BuildContext context) {
@@ -16,35 +17,42 @@ class ProgressBar extends StatelessWidget {
     for (int i = 0; i < 12; i++) {
       list.add(
         SizedBox(
-          child: Stack(
-            alignment: AlignmentDirectional.center,
-            children: [
-              Container(
-                height: 20,
-                width: constraints.maxWidth / 12,
-                decoration: BoxDecoration(
-                  color: i < progress ? Colors.black : Colors.white,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(50),
-                  ),
-                  border: Border.all(color: Colors.black, width: 2),
-                ),
-              ),
-              i < progress
-                  ? Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.check,
-                          size: 15,
-                          color: Colors.white,
-                        ),
+          child: BlocBuilder<TimerBloc, TimerState>(
+            builder: (context, state) {
+              return Stack(
+                alignment: AlignmentDirectional.center,
+                children: [
+                  Container(
+                    height: 20,
+                    width: constraints.maxWidth / 12,
+                    decoration: BoxDecoration(
+                      color: i < state.timerModel.completedSessions
+                          ? Colors.black
+                          : Colors.white,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(50),
                       ),
-                    )
-                  : Align(
-                      alignment: Alignment.center,
-                      child: Icon(Icons.remove, size: 15)),
-            ],
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                  ),
+                  i < state.timerModel.completedSessions
+                      ? Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      : Align(
+                          alignment: Alignment.center,
+                          child: Icon(Icons.remove, size: 15),
+                        ),
+                ],
+              );
+            },
           ),
         ),
       );

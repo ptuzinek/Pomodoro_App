@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   physics: physics,
                   onListWheelTap: onListWheelTap,
                   onSelectedItemChanged: onSelectedItemChanged,
-                  onNotification: onNotification,
+                  onUserScroll: onNotification,
                 ),
               ),
               SizedBox(
@@ -135,13 +135,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 50,
               ),
               FocusSessionTable(
-                focusSessionsCompleted: focusSessionsCompleted.toString(),
-              ),
+//focusSessionsCompleted: focusSessionsCompleted.toString(),
+                  ),
               SizedBox(
                 height: 200,
                 child: ProgressBar(
-                  progress: focusSessionsCompleted,
-                ),
+                    // progress: focusSessionsCompleted,
+                    ),
               ),
             ],
           ),

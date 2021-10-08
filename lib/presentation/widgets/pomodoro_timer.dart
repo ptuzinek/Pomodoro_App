@@ -7,13 +7,13 @@ class PomodoroTimer extends StatelessWidget {
     required this.controller,
     required this.physics,
     required this.onListWheelTap,
-    required this.onNotification,
+    required this.onUserScroll,
   }) : super(key: key);
   final Function(int min) onSelectedItemChanged;
   final FixedExtentScrollController controller;
   final ScrollPhysics physics;
   final Function onListWheelTap;
-  final bool Function(UserScrollNotification) onNotification;
+  final bool Function(UserScrollNotification) onUserScroll;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class PomodoroTimer extends StatelessWidget {
       child: GestureDetector(
         onTap: () => onListWheelTap(),
         child: NotificationListener<UserScrollNotification>(
-          onNotification: onNotification,
+          onNotification: onUserScroll,
           child: ListWheelScrollView.useDelegate(
             controller: controller,
             itemExtent: 40,

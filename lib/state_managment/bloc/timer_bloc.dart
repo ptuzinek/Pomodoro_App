@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:pomodoro_app/data/ticker.dart';
 import 'package:pomodoro_app/data/timer_model.dart';
 
@@ -56,7 +57,10 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   void _onPaused(TimerPaused event, Emitter<TimerState> emit) {
     if (state is TimerRunInProgress) {
       _tickerSubscription?.pause();
-      emit(TimerRunPause(timerModel: state.timerModel));
+      emit(TimerRunPause(
+          timerModel: state.timerModel.copyWith(
+        physics: AlwaysScrollableScrollPhysics(),
+      )));
     }
   }
 
@@ -84,6 +88,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       timerModel: state.timerModel.copyWith(
         duration: state.timerModel.clockMinutes * 60,
         isUserScroll: true,
+        physics: FixedExtentScrollPhysics(),
       ),
     ));
   }

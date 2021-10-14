@@ -36,22 +36,27 @@ class PomodoroTimer extends StatelessWidget {
                 return RotatedBox(
                   quarterTurns: 1,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        height: index % 5 == 0 ? 80.0 : 25,
-                        width: 2.0,
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(50))),
+                      Flexible(
+                        child: Container(
+                          height: index % 5 == 0 ? 80.0 : 25,
+                          width: 2.0,
+                          decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(50))),
+                        ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          index % 5 == 0 ? index.abs().toString() : '',
-                          style: TextStyle(
-                            fontSize: 30.0,
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            index % 5 == 0 ? index.abs().toString() : '',
+                            style: TextStyle(
+                              fontSize: 30.0,
+                            ),
                           ),
                         ),
                       ),

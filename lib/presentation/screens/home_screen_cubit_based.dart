@@ -14,16 +14,10 @@ class HomeScreenCubitBased extends StatefulWidget {
 }
 
 class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
+  // For Counting the end index for Clock Turning Animation
   int minutesOnClock = 25;
-  //int seconds = 0;
   int listViewItemPosition = 24;
-  int focusSessionsCompleted = 0;
-  ScrollPhysics physics = FixedExtentScrollPhysics();
-  // bool isPaused = true;
-  // bool isFocus = true;
-  // bool isLongBreak = false;
   bool isListIndexChange = true;
-  // Color backgroundColor = Colors.white;
   final FixedExtentScrollController controller = FixedExtentScrollController(
     initialItem: 24,
   );
@@ -31,8 +25,6 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
   @override
   void dispose() {
     controller.dispose();
-    // timer?.cancel();
-    // timer = null;
     super.dispose();
   }
 
@@ -71,12 +63,16 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
                           curve: Curves.linear);
                     }
                   },
-                  child: PomodoroTimer(
-                    controller: controller,
-                    physics: physics,
-                    onListWheelTap: onListWheelTap,
-                    onSelectedItemChanged: onSelectedItemChanged,
-                    onUserScroll: onUserScroll,
+                  child: BlocBuilder<TimerBloc, TimerState>(
+                    builder: (context, state) {
+                      return PomodoroTimer(
+                        controller: controller,
+                        physics: state.timerModel.physics,
+                        onListWheelTap: onListWheelTap,
+                        onSelectedItemChanged: onSelectedItemChanged,
+                        onUserScroll: onUserScroll,
+                      );
+                    },
                   ),
                 ),
               ),
@@ -99,14 +95,7 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
 
   bool onUserScroll(userScrollNotification) {
     print('-----------------  USER SCROLLS SEND EVENT  ----------------- ');
-    physics = FixedExtentScrollPhysics();
     BlocProvider.of<TimerBloc>(context).add(UserScrolled());
-
-    // timer?.cancel();
-    // setState(() {
-    //   //seconds = 0;
-    //   // isPaused = true;
-    // });
     return true;
   }
 
@@ -118,16 +107,14 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
     listViewItemPosition = listPositionReal;
     // Flag that the current List index changed
     isListIndexChange = true;
-    // setState(() {
     minutesOnClock = (listPositionReal + 1) % 60;
-    // });
   }
 
 // ----------------------  THESE NEEDS TO STAY  -----------------------
   void turnTheClock(int durationInSeconds) {
     // Change Physics to stop the clock at the exact current position and not
     // the closest element.
-    physics = AlwaysScrollableScrollPhysics();
+    // physics = AlwaysScrollableScrollPhysics();
     // final int durationInSeconds = minutesOnClock * 60 + seconds;
 
     // Calculate the end position of the clock, taking into account that
@@ -154,26 +141,13 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
   }
 
   void pauseCountdownAndRotation() {
-    // timer?.cancel();
     print('PAUSE');
     // Interrupt the animation by creating new one to the current position.
     controller.animateTo(controller.offset,
         duration: Duration(microseconds: 1), curve: Curves.linear);
-    // setState(() {
-    //   isPaused = true;
-    // });
   }
 
-  void onListWheelTap() {
-    // if (isPaused) {
-    //   //turnTheClock();
-    // } else {
-    //   // timer?.cancel();
-    //   setState(() {
-    //     isPaused = true;
-    //   });
-    // }
-  }
+  void onListWheelTap() {}
 }
 
 class _Buttons extends StatelessWidget {
@@ -217,18 +191,6 @@ class _SkipButton extends StatelessWidget {
             print('SKIP BUTTON PRESSED');
 
             BlocProvider.of<TimerBloc>(context).add(BreakSkipped());
-            //timer?.cancel();
-            // setState(() {
-            // backgroundColor = Colors.white;
-            // Change the session, rotate the clock to starting position,
-            // reset the clock.
-            //isFocus = !isFocus;
-            //controller.jumpToItem(24);
-            //minutes = 25;
-            //seconds = 0;
-
-            //turnTheClock();
-            // });
             print('Skipped the Break');
           },
           icon: Icon(

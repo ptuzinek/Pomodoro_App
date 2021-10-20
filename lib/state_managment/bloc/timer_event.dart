@@ -10,6 +10,10 @@ abstract class TimerEvent extends Equatable {
 class TimerStarted extends TimerEvent {
   final TimerModel timerModel;
   const TimerStarted({required this.timerModel});
+  @override
+  String toString() {
+    return 'TimerStarted { timerModel: $timerModel }';
+  }
 }
 
 class TimerPaused extends TimerEvent {

@@ -14,6 +14,13 @@ class FocusSessionTable extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(15.0),
         child: BlocBuilder<TimerBloc, TimerState>(
+          buildWhen: (previous, current) {
+            if(previous.timerModel.completedSessions != current.timerModel.completedSessions) {
+              return true;
+            } else {
+              return false;
+            }
+          },
           builder: (context, state) {
             return Text(
               'Today: ${state.timerModel.completedSessions}/12',

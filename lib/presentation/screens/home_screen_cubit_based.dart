@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pomodoro_app/presentation/widgets/focus_session_table.dart';
@@ -38,54 +37,57 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 100),
-              _SessionNameText(),
-              SizedBox(height: 10),
+              SizedBox(height: 80),
+              Flexible(child: _SessionNameText()),
+              // SizedBox(height: 10),
               _TimerText(),
+              // SizedBox(height: 100),
               Flexible(
-                child: BlocListener<TimerBloc, TimerState>(
-                  listener: (_, state) {
-                    if (state is TimerRunComplete) {
-                      if (state.timerModel.isFocus &&
-                          ((state.timerModel.completedSessions + 1) % 4) != 0) {
-                        controller.jumpToItem(4);
-                        turnTheClock(state.timerModel.duration);
-                      } else if ((state.timerModel.isFocus &&
-                              ((state.timerModel.completedSessions + 1) % 4) ==
-                                  0) ||
-                          (!state.timerModel.isFocus)) {
-                        controller.jumpToItem(24);
-                        turnTheClock(state.timerModel.duration);
-                      }
-                    } else if (state is TimerRunPause) {
-                      controller.animateTo(controller.offset,
-                          duration: Duration(microseconds: 1),
-                          curve: Curves.linear);
-                    }
-                  },
-                  child: BlocBuilder<TimerBloc, TimerState>(
-                    builder: (context, state) {
-                      return PomodoroTimer(
-                        controller: controller,
-                        physics: state.timerModel.physics,
-                        onListWheelTap: onListWheelTap,
-                        onSelectedItemChanged: onSelectedItemChanged,
-                        onUserScroll: onUserScroll,
-                      );
-                    },
+                flex: 2,
+                child: PomodoroTimer(
+                  controller: controller,
+                  onSelectedItemChanged: onSelectedItemChanged,
+                  onUserScroll: onUserScroll,
+                ),
+              ),
+              Flexible(
+                child: SizedBox(
+                  width: 300,
+                  child: _Buttons(
+                    turnTheClock: turnTheClock,
                   ),
                 ),
               ),
-              SizedBox(
-                width: 300,
-                child: _Buttons(
-                  turnTheClock: turnTheClock,
-                ),
+              // SizedBox(height: 50),
+              BlocListener<TimerBloc, TimerState>(
+                listener: (_, state) {
+                  if (state is TimerRunComplete) {
+                    if (state.timerModel.isFocus &&
+                        ((state.timerModel.completedSessions + 1) % 4) != 0) {
+                      controller.jumpToItem(4);
+                      turnTheClock(state.timerModel.duration);
+                    } else if ((state.timerModel.isFocus &&
+                            ((state.timerModel.completedSessions + 1) % 4) ==
+                                0) ||
+                        (!state.timerModel.isFocus)) {
+                      controller.jumpToItem(24);
+                      turnTheClock(state.timerModel.duration);
+                    }
+                  } else if (state is TimerRunPause) {
+                    controller.animateTo(controller.offset,
+                        duration: Duration(microseconds: 1),
+                        curve: Curves.linear);
+                  } else if (state is TimerRunStart) {
+                    final item = state.timerModel.clockMinutes - 1;
+                    print('JUMPED TO ITEM: $item');
+                    controller.jumpToItem(state.timerModel.clockMinutes - 1);
+                    turnTheClock(state.timerModel.duration);
+                  }
+                },
+                child: Flexible(child: FocusSessionTable()),
               ),
-              SizedBox(height: 50),
-              FocusSessionTable(),
-              SizedBox(height: 150),
-              ProgressBar(),
+              // SizedBox(height: 150),
+              Flexible(child: ProgressBar()),
             ],
           ),
         ],
@@ -95,7 +97,11 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
 
   bool onUserScroll(userScrollNotification) {
     print('-----------------  USER SCROLLS SEND EVENT  ----------------- ');
-    BlocProvider.of<TimerBloc>(context).add(UserScrolled());
+
+    if (userScrollNotification.direction.index > 0) {
+      print('UserScrollStart --- START');
+      BlocProvider.of<TimerBloc>(context).add(UserScrolled());
+    }
     return true;
   }
 
@@ -159,18 +165,25 @@ class _Buttons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TimerBloc, TimerState>(
-      builder: (context, state) {
-        return Stack(
-          alignment: AlignmentDirectional.center,
-          children: [
-            _PlayButton(
-              turnTheClock: turnTheClock,
-            ),
-            state.timerModel.isFocus ? Container() : _SkipButton(),
-          ],
-        );
-      },
+    return Stack(
+      alignment: AlignmentDirectional.center,
+      children: [
+        _PlayButton(
+          turnTheClock: turnTheClock,
+        ),
+        BlocBuilder<TimerBloc, TimerState>(
+          buildWhen: (previous, current) {
+            if (previous.timerModel.isFocus != current.timerModel.isFocus) {
+              return true;
+            } else {
+              return false;
+            }
+          },
+          builder: (context, state) {
+            return state.timerModel.isFocus ? Container() : _SkipButton();
+          },
+        ),
+      ],
     );
   }
 }
@@ -208,6 +221,13 @@ class _SessionNameText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TimerBloc, TimerState>(
+      buildWhen: (previous, current) {
+        if (previous.timerModel.isFocus != current.timerModel.isFocus) {
+          return true;
+        } else {
+          return false;
+        }
+      },
       builder: (context, state) {
         return Text(
           state.timerModel.isFocus ? 'Focus' : 'Break',
@@ -228,6 +248,7 @@ class _TimerText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flexible(
+      flex: 2,
       child: BlocBuilder<TimerBloc, TimerState>(
         buildWhen: (previous, current) {
           if (current is TimerInitial && !current.timerModel.isUserScroll) {
@@ -288,6 +309,13 @@ class _Background extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TimerBloc, TimerState>(
+      buildWhen: (previous, current) {
+        if (previous.timerModel.isFocus != current.timerModel.isFocus) {
+          return true;
+        } else {
+          return false;
+        }
+      },
       builder: (context, state) {
         return AnimatedContainer(
           duration: Duration(milliseconds: 400),
@@ -305,8 +333,19 @@ class _PlayButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TimerBloc, TimerState>(
+      buildWhen: (previous, current) {
+        if ((previous.timerModel.isPaused != current.timerModel.isPaused) ||
+            (previous.timerModel.duration != current.timerModel.duration) ||
+            (previous.timerModel.isFocus != current.timerModel.isFocus)) {
+          print('previous.timerModel.isFocus != current.timerModel.isFocus: ');
+          print(previous.timerModel.isFocus != current.timerModel.isFocus);
+          return true;
+        } else {
+          return false;
+        }
+      },
       builder: (context, state) {
-        if (state is TimerRunInProgress) {
+        if ((state is TimerRunInProgress) || (state is TimerRunStart)) {
           return IconButton(
             iconSize: 40,
             icon: Icon(
@@ -326,10 +365,8 @@ class _PlayButton extends StatelessWidget {
             ),
             onPressed: () {
               print('PLAY BUTTON PRESSED');
-
               BlocProvider.of<TimerBloc>(context)
                   .add(TimerStarted(timerModel: state.timerModel));
-              turnTheClock(state.timerModel.duration);
             },
           );
         } else if (state is TimerRunPause) {

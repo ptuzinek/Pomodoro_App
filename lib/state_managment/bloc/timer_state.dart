@@ -49,5 +49,17 @@ class TimerRunComplete extends TimerState {
   List<Object> get props => [timerModel];
 
   @override
-  String toString() => 'TimerRunComplete';
+  String toString() => 'TimerRunComplete { timerModel: $timerModel }';
+}
+
+class TimerRunStart extends TimerState {
+  final TimerModel timerModel;
+
+  TimerRunStart({required this.timerModel}) : super(timerModel: TimerModel());
+
+  @override
+  List<Object> get props => [timerModel];
+
+  @override
+  String toString() => 'TimerRunStart { timerModel: $timerModel }';
 }

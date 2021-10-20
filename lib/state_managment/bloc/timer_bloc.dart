@@ -32,22 +32,25 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   }
 
   void _onStarted(TimerStarted event, Emitter<TimerState> emit) {
-    emit(TimerRunInProgress(timerModel: event.timerModel));
     _tickerSubscription?.cancel();
     if (event.timerModel.duration > 0) {
+      emit(TimerRunStart(
+          timerModel: event.timerModel.copyWith(
+        isUserScroll: false,
+        isPaused: false,
+      )));
       _tickerSubscription =
           ticker.tick(ticks: event.timerModel.duration).listen((duration) {
-        print('DURATION FROM BLOC: $duration');
         add(TimerTicked(
-            timerModel: event.timerModel.copyWith(
+            timerModel: state.timerModel.copyWith(
           duration: duration,
-          isFocus: state.timerModel.isFocus,
           isUserScroll: false,
+          isPaused: false,
         )));
       });
     } else {
       add(TimerTicked(
-          timerModel: event.timerModel.copyWith(
+          timerModel: state.timerModel.copyWith(
         duration: 0,
         isUserScroll: false,
       )));
@@ -60,6 +63,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       emit(TimerRunPause(
           timerModel: state.timerModel.copyWith(
         physics: AlwaysScrollableScrollPhysics(),
+        isPaused: true,
       )));
     }
   }
@@ -68,7 +72,10 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     if (state is TimerRunPause) {
       _tickerSubscription?.resume();
       emit(TimerRunInProgress(
-          timerModel: state.timerModel.copyWith(isUserScroll: false)));
+          timerModel: state.timerModel.copyWith(
+        isUserScroll: false,
+        isPaused: false,
+      )));
     }
   }
 
@@ -76,7 +83,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     if (state.timerModel.isUserScroll) {
       emit(TimerInitial(
           timerModel: state.timerModel.copyWith(
-        isFocus: state.timerModel.isFocus,
+        duration: event.clockMinutes * 60,
         clockMinutes: event.clockMinutes,
       )));
     }
@@ -86,9 +93,9 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     _tickerSubscription?.cancel();
     emit(TimerInitial(
       timerModel: state.timerModel.copyWith(
-        duration: state.timerModel.clockMinutes * 60,
         isUserScroll: true,
         physics: FixedExtentScrollPhysics(),
+        isPaused: true,
       ),
     ));
   }
@@ -108,10 +115,11 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
     add(TimerStarted(
         timerModel: state.timerModel.copyWith(
-            duration: 25 * 60,
-            isFocus: !state.timerModel.isFocus,
-            clockMinutes: 25,
-            isUserScroll: false)));
+      duration: 25 * 60,
+      isFocus: !state.timerModel.isFocus,
+      clockMinutes: 25,
+      isUserScroll: false,
+    )));
   }
 
   void _onTicked(TimerTicked event, Emitter<TimerState> emit) {

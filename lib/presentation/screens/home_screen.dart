@@ -70,8 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Flexible(
                 child: PomodoroTimer(
                   controller: controller,
-                  physics: physics,
-                  onListWheelTap: onListWheelTap,
+                  // physics: physics,
                   onSelectedItemChanged: onSelectedItemChanged,
                   onUserScroll: onNotification,
                 ),

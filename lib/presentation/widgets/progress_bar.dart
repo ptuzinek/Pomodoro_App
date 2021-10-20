@@ -18,6 +18,13 @@ class ProgressBar extends StatelessWidget {
       list.add(
         SizedBox(
           child: BlocBuilder<TimerBloc, TimerState>(
+            buildWhen: (previous, current) {
+              if(previous.timerModel.completedSessions != current.timerModel.completedSessions) {
+                return true;
+              } else {
+                return false;
+              }
+            },
             builder: (context, state) {
               return Stack(
                 alignment: AlignmentDirectional.center,

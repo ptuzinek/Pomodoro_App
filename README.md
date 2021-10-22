@@ -1,5 +1,8 @@
 # pomodoro_app
 
+![alt-text](https://github.com/ptuzinek/Pomodoro_App/blob/master/PomodoroAppIntroGif.gif)
+
+
 A new Flutter project.
 
 ## Getting Started

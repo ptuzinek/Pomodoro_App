@@ -18,4 +18,5 @@ Code responsible for the animation of turning the clock is implemented inside th
 - After countdown is over, the score is increased by 1.
 - Progress Bar indicating the finished sessions and the sessions that left.
 - Long breaks after 4th focus session.
+- Different background color for each session
 - Autoplay

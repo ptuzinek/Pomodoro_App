@@ -1,19 +1,22 @@
 # Pomodoro Timer :clock9:
-This is a timer app that resembles real pomodoro timer by turning countdown setter. It is a great looking app with UI and UX that brings joy and satisfaction while using. User can set the time by turning the clock and start countdown. App shows the progress of the countdown in two-ways - by turning the clock corresponding to the countdown and by Circular Progress Indicator. There is also an animation of loading this indicator when timer hits zero or when the user stars srolling when the countdown is on.
+This is a timer app that resembles real pomodoro timer by turning countdown setter. It is a great looking app with UI and UX that brings joy and satisfaction while using. User can set the time by turning the clock and start countdown. App helps to stay focused and keep a high level of productivity throughout the day by managing the breaks between work.
 
 
 ![alt-text](https://github.com/ptuzinek/Pomodoro_App/blob/master/PomodoroAppIntroGifLarge.gif)
+
+# Developer notes 👾
+The Application was build using BLoC architecture. Its performance was optimized by profiling the app using DevTools and by minimizing widgets rebuilds using Android Studio's tools for tracking builds. The costly PomodoroTimer widget performance was enhanced by the use of const widgets that are not rebuild even when its parent is rebuilding. Also the buildWhen method was used to minimize number of re-builds.
+Code responsible for the animation of turning the clock is implemented inside the UI code.
 
 
 # Functionalities :gear: 
 - Turning clock for setting the countdown time.
 - Clock can be rotated infinitely.
 - Clock resets to 0 after going over 59 minutes when setting countdown time (turning the clock).
-- Start/Pause button wrapped with Circular Progress Indicator that is corresponding to the countdown.
+- Start/Pause button and Skip button for skipping breaks.
 - Clock turns corresponding to the countdown.
-- Countdown can be also started/paused by clicking directly on the middle of the clock.
-- After countdown is over, the Round and Goal score is increased by 1.
-- Round score resets after 4th round.
-- When countdown is at zero - Circular Progress Indicator animates loading from empty to full.
-- Srolling when countdown is on causes the reset of the Circular Progress Indicator and Countdown timer (not shown in demo)
-
+- After countdown is over, the score is increased by 1.
+- Progress Bar indicating the finished sessions and the sessions that left.
+- Long breaks after 4th focus session.
+- Different background color for each session
+- Autoplay

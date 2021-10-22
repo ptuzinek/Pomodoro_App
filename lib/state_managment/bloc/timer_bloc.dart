@@ -60,6 +60,8 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   void _onPaused(TimerPaused event, Emitter<TimerState> emit) {
     if (state is TimerRunInProgress) {
       _tickerSubscription?.pause();
+      // Change Physics to stop the clock at the exact current position and not
+      // the closest element.
       emit(TimerRunPause(
           timerModel: state.timerModel.copyWith(
         physics: AlwaysScrollableScrollPhysics(),
@@ -106,7 +108,6 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   }
 
   void _onSkipped(BreakSkipped event, Emitter<TimerState> emit) {
-    print('Cancel!');
     _tickerSubscription?.cancel();
     emit(TimerRunComplete(
         timerModel: state.timerModel.copyWith(

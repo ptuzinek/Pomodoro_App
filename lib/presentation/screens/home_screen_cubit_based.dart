@@ -39,9 +39,7 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
             children: [
               SizedBox(height: 80),
               Flexible(child: _SessionNameText()),
-              // SizedBox(height: 10),
               _TimerText(),
-              // SizedBox(height: 100),
               Flexible(
                 flex: 2,
                 child: PomodoroTimer(
@@ -59,7 +57,6 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
                   ),
                 ),
               ),
-              // SizedBox(height: 50),
               BlocListener<TimerBloc, TimerState>(
                 listener: (_, state) {
                   if (state is TimerRunComplete) {
@@ -87,7 +84,6 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
                 },
                 child: Flexible(child: FocusSessionTable()),
               ),
-              // SizedBox(height: 150),
               Flexible(child: ProgressBar()),
             ],
           ),
@@ -98,9 +94,7 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
 
   bool onUserScroll(userScrollNotification) {
     print('-----------------  USER SCROLLS SEND EVENT  ----------------- ');
-
     if (userScrollNotification.direction.index > 0) {
-      print('UserScrollStart --- START');
       BlocProvider.of<TimerBloc>(context).add(UserScrolled());
     }
     return true;
@@ -117,13 +111,7 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
     minutesOnClock = (listPositionReal + 1) % 60;
   }
 
-// ----------------------  THESE NEEDS TO STAY  -----------------------
   void turnTheClock(int durationInSeconds) {
-    // Change Physics to stop the clock at the exact current position and not
-    // the closest element.
-    // physics = AlwaysScrollableScrollPhysics();
-    // final int durationInSeconds = minutesOnClock * 60 + seconds;
-
     // Calculate the end position of the clock, taking into account that
     // the calculation is using the current index and the minutes count,
     // but when the clock starts it substracts 1 minute, so when user pause and
@@ -131,7 +119,6 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
     // Also take into account that the listViewItemPosition changes when seconds
     // reach 30.
     int endPosition = -1;
-    // // here we take into account that the minute should be rounded up.
     if (isListIndexChange) {
       endPosition = listViewItemPosition - minutesOnClock;
     } else {
@@ -146,15 +133,6 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
         ),
         curve: Curves.linear);
   }
-
-  void pauseCountdownAndRotation() {
-    print('PAUSE');
-    // Interrupt the animation by creating new one to the current position.
-    controller.animateTo(controller.offset,
-        duration: Duration(microseconds: 1), curve: Curves.linear);
-  }
-
-  void onListWheelTap() {}
 }
 
 class _Buttons extends StatelessWidget {
@@ -205,7 +183,6 @@ class _SkipButton extends StatelessWidget {
             print('SKIP BUTTON PRESSED');
 
             BlocProvider.of<TimerBloc>(context).add(BreakSkipped());
-            print('Skipped the Break');
           },
           icon: Icon(
             Icons.skip_next,
@@ -259,8 +236,6 @@ class _TimerText extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          print(
-              '------------------------  TEXT CHANGE ! ------------------------');
           if (state is TimerInitial) {
             return Text(
               displayTime(state.timerModel.clockMinutes * 60),
@@ -338,8 +313,6 @@ class _PlayButton extends StatelessWidget {
         if ((previous.timerModel.isPaused != current.timerModel.isPaused) ||
             (previous.timerModel.duration != current.timerModel.duration) ||
             (previous.timerModel.isFocus != current.timerModel.isFocus)) {
-          print('previous.timerModel.isFocus != current.timerModel.isFocus: ');
-          print(previous.timerModel.isFocus != current.timerModel.isFocus);
           return true;
         } else {
           return false;

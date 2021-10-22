@@ -78,7 +78,6 @@ class PomodoroTimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('---------------   BUILDING POMODORO TIMER !!!    ---------------');
     return RotatedBox(
       quarterTurns: 3,
       child: NotificationListener<UserScrollNotification>(
@@ -93,7 +92,7 @@ class PomodoroTimer extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            print('BUILDING POMODORO TIMER !??????????????????');
+            print('BUILDING POMODORO TIMER');
             return ListWheelScrollView.useDelegate(
               controller: controller,
               itemExtent: 40,

@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (context) => TimerBloc(ticker: Ticker()),
       child: MaterialApp(
-        showPerformanceOverlay: true,
+        // showPerformanceOverlay: true,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,

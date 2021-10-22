@@ -52,6 +52,7 @@ class _HomeScreenCubitBasedState extends State<HomeScreenCubitBased> {
               ),
               Flexible(
                 child: SizedBox(
+                  height: 95.5,
                   width: 300,
                   child: _Buttons(
                     turnTheClock: turnTheClock,

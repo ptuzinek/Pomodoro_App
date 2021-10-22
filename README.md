@@ -1,6 +1,6 @@
 # pomodoro_app
 
-![alt-text](https://github.com/ptuzinek/Pomodoro_App/blob/master/PomodoroAppIntroGif.gif)
+![alt-text](https://github.com/ptuzinek/Pomodoro_App/blob/master/PomodoroAppIntroGifLarge.gif)
 
 
 A new Flutter project.
